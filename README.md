@@ -49,26 +49,26 @@ Strong typing for cleaner, safer code.
 ---
 
 ## 📂 Folder Structure
-# src/
-# ├── app/
-# │ ├── api/
-# │ │ └── chat/
-# │ │ └── route.ts # Core API logic (intent detection + LLM + fallback)
-# │ ├── globals.css
-# │ └── page.tsx
-# ├── components/
-# │ └── ChatClient.tsx # Frontend chat UI (React + Tailwind)
-# └── lib/
-# └── journal.ts # Logic for storage + extraction + keyword parsing
+### src/
+### ├── app/
+### │ ├── api/
+### │ │ └── chat/
+### │ │ └── route.ts # Core API logic (intent detection + LLM + fallback)
+### │ ├── globals.css
+### │ └── page.tsx
+### ├── components/
+### │ └── ChatClient.tsx # Frontend chat UI (React + Tailwind)
+### └── lib/
+### └── journal.ts # Logic for storage + extraction + keyword parsing
 
 ## 🧠 Future Improvements
 
-# 🗄️ Add persistent DB (MongoDB/Firebase)
+###🗄️ Add persistent DB (MongoDB/Firebase)
 
-# 📱 Add authentication per user
+### 📱 Add authentication per user
 
-# 🔔 Push reminders for tasks
+### 🔔 Push reminders for tasks
 
-# 💬 Multi-turn chat context memory
+### 💬 Multi-turn chat context memory
 
-# 📑 Export journal as Markdown/PDF
+### 📑 Export journal as Markdown/PDF
