@@ -49,152 +49,26 @@ Strong typing for cleaner, safer code.
 ---
 
 ## 📂 Folder Structure
-src/
-├── app/
-│ ├── api/
-│ │ └── chat/
-│ │ └── route.ts # Core API logic (intent detection + LLM + fallback)
-│ ├── globals.css
-│ └── page.tsx
-├── components/
-│ └── ChatClient.tsx # Frontend chat UI (React + Tailwind)
-└── lib/
-└── journal.ts # Logic for storage + extraction + keyword parsing
+# src/
+# ├── app/
+# │ ├── api/
+# │ │ └── chat/
+# │ │ └── route.ts # Core API logic (intent detection + LLM + fallback)
+# │ ├── globals.css
+# │ └── page.tsx
+# ├── components/
+# │ └── ChatClient.tsx # Frontend chat UI (React + Tailwind)
+# └── lib/
+# └── journal.ts # Logic for storage + extraction + keyword parsing
 
-🧠 Core Logic Breakdown
-🪄 Intent Detection (route.ts)
-function looksLikeAddIntent(text: string) {
-  if (!text) return false
-  const s = text.toLowerCase()
-  return (
-    /\b(add|put|buy|need|remember|remind|get)\b/.test(s) &&
-    /\b(list|shopping|grocery|to-?do|todo|task|supermarket)\b/.test(s)
-  )
-}
+## 🧠 Future Improvements
 
+# 🗄️ Add persistent DB (MongoDB/Firebase)
 
-Detects add-intent for both “shopping list” and “to-do list” contexts.
+# 📱 Add authentication per user
 
-Handles natural phrases like:
+# 🔔 Push reminders for tasks
 
-“Add milk to my shopping list”
+# 💬 Multi-turn chat context memory
 
-“Add ‘send email to professor’ to my to-do list”
-
-
-
-
-🧰 Fallback Extraction Logic (journal.ts)
-
-If the Gemini API fails or is unavailable, we use this regex-based logic:
-
-const patterns = [
-  /(?:add(?: to)?(?: my)?(?: (?:shopping|to-?do|todo) list)?|add)\s+([a-z0-9 ,&and\-']+)/i,
-  /(?:buy|buying|bought)\s+([a-z0-9 ,&and\-']+)/i,
-  /(?:don't forget|remember|remind me to)\s+([a-z0-9 ,&and\-']+)/i,
-  /(?:also|and also|plus)\s+([a-z0-9 ,&and\-']+)/i,
-]
-
-
-Extracts phrases after add, buy, remember, or don’t forget.
-
-Cleans, stems, and returns as lowercase item strings.
-
-
-🧩 Example:
-
-Input	Extracted Items
-“Add eggs and milk to my shopping list”	["egg", "milk"]
-“Add send email to professor to my to-do list”	["send email to professor"]
-“Don’t forget bread”	["bread"]
-
-
-🧠 Gemini Extraction Logic (route.ts)
-
-If the API key exists, Gemini is used first for structured extraction:
-
-const prompt = `
-You are a journaling assistant.
-Extract structured items from the text and return JSON only.
-
-User message:
-"""${text}"""
-
-Return this structure between markers:
-
-JSON_START
-{"items": ["item1","item2"], "content": "original user text"}
-JSON_END
-`
-
-const result = await generateText({ model, prompt, maxOutputTokens: 300 })
-
-🗂 In-Memory Storage
-
-All entries are stored inside a simple array:
-
-let entries: Entry[] = []
-
-export function addEntry(content: string, tags: string[] = [], items: string[] = []) {
-  const e: Entry = {
-    id: String(Date.now()),
-    content,
-    items: items.map(i => i.toLowerCase()),
-    createdAt: new Date().toISOString()
-  }
-  entries.unshift(e)
-  return e
-}
-
-
-No database — data resets when the server restarts.
-
-🧩 Query Matching Logic
-
-When user asks:
-
-“What is my to-do list?” or “Show my shopping list”
-
-It triggers a simple keyword-based check:
-
-function isShoppingQueryInternal(q: string) {
-  const norm = q.toLowerCase()
-  return /\b(shopping list|grocery list|to-?do|todo|supermarket)\b/i.test(norm)
-}
-
-💬 Frontend Logic (ChatClient.tsx)
-
-The chat UI is built with React and TailwindCSS:
-
-Auto-scrolls on new messages
-
-Distinguishes user & assistant bubbles
-
-Displays Saved entry cards
-
-Shows extracted Shopping List or To-Do List dynamically
-
-const isTodoContext = lastUserMessage && /\b(to-?do|todo)\b/i.test(lastUserMessage.text)
-
-{m.shoppingItems && (
-  <div>
-    <div className="font-medium mb-2">
-      {isTodoContext ? 'To-Do List' : 'Shopping List'}
-    </div>
-    <ul>
-      {m.shoppingItems.map(it => <li key={it}>{it}</li>)}
-    </ul>
-  </div>
-)}
-
-🧠 Future Improvements
-
-🗄️ Add persistent DB (MongoDB/Firebase)
-
-📱 Add authentication per user
-
-🔔 Push reminders for tasks
-
-💬 Multi-turn chat context memory
-
-📑 Export journal as Markdown/PDF
+# 📑 Export journal as Markdown/PDF
