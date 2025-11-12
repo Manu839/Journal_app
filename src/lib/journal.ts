@@ -110,32 +110,48 @@ function extractKeywords(text: string): string[] {
 function fallbackExtractItems(content: string): string[] {
   const s = normalizeText(content);
 
+  // Strong phrase-level patterns (capture the meaningful chunk)
   const patterns = [
-    /(?:add(?: to)?(?: my)?(?: (?:shopping|to-?do|todo) list)?|add)\s+([a-z0-9 ,&and\-']+)/i,
-    /(?:buy|buying|bought)\s+([a-z0-9 ,&and\-']+)/i,
-    /(?:don't forget(?: to)?|do not forget(?: to)?|remember(?: to)?|remind me to)\s+([a-z0-9 ,&and\-']+)/i,
-    /(?:also|and also|plus)\s+([a-z0-9 ,&and\-']+)/i,
-    /(?:shopping list:|shopping:|to-?do list:|todo:)\s*([a-z0-9 ,&and\-']+)/i,
+    // capture after verbs like add/buy/need/remember ... but stop at common prepositions/phrases
+    /(?:add|put|buy|need|remember|remind me to|don't forget to|note to)\s+(.*?)(?:\s+(?:to|in|on|at|for|my|the|from)\b|$)/i,
+    // list: X or shopping list: X or to-do list: X
+    /(?:shopping list:|shopping:|to-?do list:|todo:)\s*(.+)$/i,
+    // short forms: also X / and also X
+    /(?:also|and also|plus)\s+(.+)$/i,
   ];
 
   for (const pat of patterns) {
     const m = s.match(pat);
     if (m && m[1]) {
-      const chunk = m[1];
-      const items = chunk
-        .split(/,| and | & /)
-        .map((t) => t.trim().replace(/[^a-z0-9\s\-']/g, ""))
-        .filter(Boolean)
-        .map((t) => stem(t))
-        .filter(
-          (t) => t.length > 1 && !COMMON_VERBS.has(t) && !STOPWORDS.has(t)
+      // clean the chunk: remove list words, trailing 'list' markers, quotes, extra punctuation
+      let chunk = m[1]
+        .replace(
+          /\b(to-?do|todo|shopping|shopping list|to-?do list|my|the|list)\b/gi,
+          " "
         )
-        .map((t) => t.toLowerCase());
+        .replace(/['"`]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      // split on commas / " and " only if multiple items present
+      const parts = chunk
+        .split(/\s*,\s*|\s+and\s+/i)
+        .map((p) => p.trim())
+        .filter(Boolean);
+
+      const items = parts
+        .map((p) => p.replace(/[^a-z0-9\s\-']/gi, "").trim()) // strip stray punctuation
+        .map((p) => stem(p)) // basic plural -> singular
+        .map((p) => p.toLowerCase())
+        .filter(
+          (p) => p.length > 1 && !COMMON_VERBS.has(p) && !STOPWORDS.has(p)
+        );
+
       if (items.length > 0) return Array.from(new Set(items));
     }
   }
 
-  // fallback: pick noun-like tokens
+  // If nothing matched, be conservative: try to extract noun-like tokens but return short list
   const tokens = s
     .split(/[\s,]+/)
     .map((t) => t.trim())
@@ -143,12 +159,13 @@ function fallbackExtractItems(content: string): string[] {
   const candidates = tokens
     .map((t) => t.replace(/[^a-z0-9\-']/g, ""))
     .map((t) => stem(t))
-    .filter((t) => t.length > 1 && !COMMON_VERBS.has(t) && !STOPWORDS.has(t));
+    .filter((t) => t.length > 2 && !COMMON_VERBS.has(t) && !STOPWORDS.has(t));
 
+  // return up to 4 sensible tokens (avoid full sentence split)
   const uniq: string[] = [];
   for (const c of candidates) {
     if (!uniq.includes(c)) uniq.push(c);
-    if (uniq.length >= 6) break;
+    if (uniq.length >= 4) break;
   }
   return uniq.map((i) => i.toLowerCase());
 }
@@ -212,19 +229,29 @@ export function queryEntries(query: string) {
 
 export function getShoppingItemsForResults(results: Entry[]): string[] {
   const items: string[] = [];
+
   for (const r of results) {
+    // Prefer explicitly extracted structured items
     if (r.items && r.items.length > 0) {
-      for (const it of r.items) if (!items.includes(it)) items.push(it);
+      for (const it of r.items) {
+        const cleanItem = it.trim().toLowerCase();
+        if (cleanItem && !items.includes(cleanItem)) {
+          items.push(cleanItem);
+        }
+      }
       continue;
     }
+
+    // If no structured items, fallback once from content (not keywords)
     const fromContent = fallbackExtractItems(r.content || "");
-    for (const it of fromContent) if (!items.includes(it)) items.push(it);
-    for (const k of r.keywords || []) {
-      const kk = stem(k).toLowerCase();
-      if (kk.length > 1 && !COMMON_VERBS.has(kk) && !items.includes(kk))
-        items.push(kk);
+    for (const it of fromContent) {
+      const cleanItem = it.trim().toLowerCase();
+      if (cleanItem && !items.includes(cleanItem)) {
+        items.push(cleanItem);
+      }
     }
   }
+
   return items;
 }
 
