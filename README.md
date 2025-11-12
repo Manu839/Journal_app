@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📝 Journal Chat — Smart To-Do & Shopping List AI App
 
-## Getting Started
+An intelligent journaling web application built with **Next.js 14**, **TypeScript**, and **TailwindCSS**, where users can naturally interact with an AI assistant that can **understand, store, and recall** different types of text-based inputs such as:
 
-First, run the development server:
+- 🛒 Shopping lists  
+- ✅ To-do tasks  
+- 🗒️ Personal journal notes  
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The app acts as a **smart digital notebook** that lets you “talk” to your lists instead of manually managing them. You can simply type things like:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+> “Add eggs and milk to my shopping list”  
+> “Add send project report to my to-do list”  
+> “Show my to-do list”
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+and the assistant automatically understands and organizes everything.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- It uses the **Google Gemini API** (via `@ai-sdk/google` and `ai` libraries) to understand natural language and extract structured data.  
+- All data is stored in **in-memory storage** on the server (so no external database setup is required).
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🚀 Features
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+✅ **🧠 Smart Intent Detection**  
+Automatically distinguishes between:
+- Adding to a *to-do list*  
+- Adding to a *shopping list*  
+- Viewing existing lists  
+- Or writing a regular journal entry  
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+✅ **💾 In-Memory Storage**  
+- Data is stored temporarily in server memory for simplicity.  
+- No database or setup required — ideal for prototypes and demos.
 
-## Deploy on Vercel
+✅ **🧰 Fallback Extraction**  
+- When the Gemini API isn’t available, a powerful **regex-based fallback** extracts meaningful items from user messages.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+✅ **🧾 Unified List Management**  
+- Both **Shopping Lists** and **To-Do Lists** are handled under one chat interface.  
+- The assistant automatically labels them correctly based on context.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+✅ **💬 Beautiful, Minimal Chat UI**  
+A clean TailwindCSS-powered chat interface with:
+- Smooth message bubbles  
+- Auto-scroll  
+- Context-based list rendering  
+- Clear distinction between user and assistant messages  
+
+✅ **⚙️ TypeScript Support**  
+- Full static typing across both backend and frontend ensures stability and clarity during development.
+
+---
+
+## 🧩 Tech Stack
+
+| Layer | Technology Used |
+|--------|----------------|
+| **Frontend** | React (Next.js 14), TypeScript, TailwindCSS |
+| **Backend** | Next.js Route Handlers |
+| **AI Model** | Google Gemini API (`@ai-sdk/google`, `ai`) |
+| **Styling** | TailwindCSS |
+| **State Management** | React Hooks (`useState`, `useEffect`) |
+| **Storage** | Temporary in-memory array (Node.js memory) |
+
+---
+
+## 📂 Folder Structure
+
+The project is cleanly organized for clarity and scalability:
+
+
+## ⚙️ Environment Variables
+- Variable	Description
+- GOOGLE_GENERATIVE_AI_API_KEY	Your Gemini API Key
+- GOOGLE_MODEL_ID	Model name (default: models/gemini-2.5-flash)
+  
+## 🧠 Example Interactions
+
+| User Input | Assistant Response |
+|-------------|--------------------|
+| “Add eggs and milk to my shopping list.” | ✅ *Saved items: eggs, milk* |
+| “Add send email to professor to my to-do list.” | ✅ *Saved items: send email to professor* |
+| “Show my to-do list.” | 🧾 *Found 1 matching entry: send email to professor* |
+| “Remind me to buy bread.” | ✅ *Saved item: bread* |
+
+## 🧱 Future Improvements
+- 🗄️ Add persistent database (MongoDB/Firebase) : To retain entries permanently instead of in-memory.
+- 📱 Add authentication per user : Each user can have private, synced journals.
+- 🔔 Push reminders for tasks : Enable timed to-do notifications (e.g., “Remind me at 6 PM”).
+- 💬 Multi-turn conversational memory : Allow contextual, multi-message conversations.
+- 📑 Export journal as Markdown/PDF : Let users download or export their chat-based journal.
