@@ -19,6 +19,10 @@ and the assistant automatically understands and organizes everything.
 
 ---
 
+<img width="1837" height="953" alt="s11111" src="https://github.com/user-attachments/assets/d48464db-b222-4114-8616-798cbf2d7a32" />
+
+<img width="1845" height="952" alt="s22222" src="https://github.com/user-attachments/assets/f24c9009-b528-407f-8c41-4a24aa90fdd4" />
+
 ## 🚀 Features
 
 ✅ **🧠 Smart Intent Detection**  
